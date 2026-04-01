@@ -14,10 +14,10 @@ import java.util.UUID;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-public class CompanyManager {
-    @Column(length = 36, name = "company_manager_id", nullable = false)
-    private UUID companyManagerId;
+public class Hub {
+    @Column(length = 36, name = "hub_id", nullable = false)
+    private UUID id;
 
-    @Column(name = "company_manager_name", length = 50, nullable = false)
-    private String companyManagerName;
+    @Column(name = "hub_name", columnDefinition = "TEXT", nullable = false)
+    private String name;
 }

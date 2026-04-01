@@ -1,16 +1,7 @@
 package org.iimsa.company_service.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -18,6 +9,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.iimsa.common.domain.BaseEntity;
+
+import org.iimsa.company_service.domain.service.HubProvider;
+import org.iimsa.company_service.domain.service.CompanyManagerProvider;
+import org.iimsa.company_service.domain.service.RoleCheck;
 
 @Entity
 @Table(name = "p_company")
@@ -38,18 +33,8 @@ public class Company extends BaseEntity {
     @Column(name = "company_type", nullable = false)
     private CompanyType companyType;
 
-    @Column(name = "hub_id")
-    private UUID hubId;
-
-    @Column(name = "hub_name", columnDefinition = "TEXT")
-    private String hubName;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_manager_id")
-    private CompanyManager companyManager; // UUID
-
-    @Column(name = "company_manager_name", length = 50)
-    private String companyManagerName;
+    @Embedded
+    private Associate associate;
 
     @Column(name = "address", columnDefinition = "TEXT")
     private String address;
@@ -60,18 +45,53 @@ public class Company extends BaseEntity {
     @Column(name = "longitude")
     private Double longitude;
 
-    // 기존 매니저를 다른 사람으로 변경
-    public void changeManager(CompanyManager manager) {
-        this.companyManager = manager;
+    @Builder
+    public Company(
+            String companyName, CompanyType companyType,
+            String address, Double latitude, Double longitude,
+            UUID hubId, HubProvider hubProvider,
+            UUID companyManagerId, CompanyManagerProvider companyManagerProvider,
+            RoleCheck roleCheck) {
 
-        if(manager != null) {
-            this.companyManagerName = manager.getCompanyManagerName();
-        }
+        checkAuthority(roleCheck);
+
+        this.companyName = companyName;
+        this.companyType = companyType;
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.associate = new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider);
     }
 
-    // 기존 매니저가 이름을 바꾸는 경우 (매니저 UUID는 동일)
-    public void syncManagerName(String newManagerName) {
-        this.companyManagerName = newManagerName;
+    // create
+    public static Company create(
+            String companyName,
+            UUID hubId, UUID companyManagerId,
+            String address, Double latitude, Double longitude,
+            HubProvider hubProvider, CompanyManagerProvider companyManagerProvider,
+            RoleCheck roleCheck
+    ) {
+        if (roleCheck.hasRole("MASTER")) { // MASTER 관리자는 권한 체크 필요 없음
+            return Company.builder()
+                    .companyName(companyName)
+                    .associate(new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider))
+                    .address(address)
+                    .latitude(latitude)
+                    .longitude(longitude)
+                    .build();
+        }
+
+        if (roleCheck.hasRole("HUB_MANAGER")) {
+            return Company.builder()
+                    .companyName(companyName)
+                    .associate(new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider))
+                    .address(address)
+                    .latitude(latitude)
+                    .longitude(longitude)
+                    .build();
+        }
+
+        return null;
     }
 
     // patch
@@ -93,6 +113,29 @@ public class Company extends BaseEntity {
     public void softDelete(String userName) {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = userName;
+    }
+
+    // checkRole
+    private void checkAuthority(RoleCheck roleCheck) {
+        if (roleCheck.hasRole("MASTER")) { // MASTER 관리자는 권한 체크 필요 없음
+            return;
+        }
+
+        if (!(roleCheck.hasRole("HUB_MANAGER") && roleCheck.isMyHub(this.associate.getHub().getId()))) {
+            throw new RuntimeException("처리할 권한이 없습니다.");
+        }
+    }
+
+    // 허브나 업체 매니저가 변경되는 경우
+    public void changeAffiliation(
+            UUID newHubId,
+            UUID newCompanyManagerId,
+            HubProvider hubProvider,
+            CompanyManagerProvider companyManagerProvider,
+            RoleCheck roleCheck
+    ) {
+        checkAuthority(roleCheck);
+        this.associate = new Associate(newHubId, newCompanyManagerId, hubProvider, companyManagerProvider);
     }
 
 }
