@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +18,8 @@ import org.iimsa.company_service.domain.service.RoleCheck;
 @Entity
 @Table(name = "p_company")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Company extends BaseEntity {
 
@@ -45,7 +46,7 @@ public class Company extends BaseEntity {
     @Column(name = "longitude")
     private Double longitude;
 
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     public Company(
             String companyName, CompanyType companyType,
             String address, Double latitude, Double longitude,
@@ -53,27 +54,44 @@ public class Company extends BaseEntity {
             UUID companyManagerId, CompanyManagerProvider companyManagerProvider,
             RoleCheck roleCheck) {
 
-        checkAuthority(roleCheck);
+        checkAuthority(roleCheck, hubId);
 
         this.companyName = companyName;
         this.companyType = companyType;
         this.address = address;
         this.latitude = latitude;
         this.longitude = longitude;
+
         this.associate = new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider);
+    }
+
+    public UUID getHubId() {
+        if (this.associate != null && this.associate.getHub() != null) {
+            return this.associate.getHub().getId();
+        }
+        return null;
+    }
+
+    public UUID getCompanyManagerId() {
+        if (this.associate != null && this.associate.getCompanyManager() != null) {
+            return this.associate.getCompanyManager().getCompanyManagerId();
+        }
+        return null;
     }
 
     // create
     public static Company create(
             String companyName,
+            CompanyType companyType,
             UUID hubId, UUID companyManagerId,
             String address, Double latitude, Double longitude,
             HubProvider hubProvider, CompanyManagerProvider companyManagerProvider,
             RoleCheck roleCheck
     ) {
-        if (roleCheck.hasRole("MASTER")) { // MASTER 관리자는 권한 체크 필요 없음
+        if (roleCheck.hasRole("MASTER")) {
             return Company.builder()
                     .companyName(companyName)
+                    .companyType(companyType)
                     .associate(new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider))
                     .address(address)
                     .latitude(latitude)
@@ -84,6 +102,7 @@ public class Company extends BaseEntity {
         if (roleCheck.hasRole("HUB_MANAGER")) {
             return Company.builder()
                     .companyName(companyName)
+                    .companyType(companyType)
                     .associate(new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider))
                     .address(address)
                     .latitude(latitude)
@@ -116,26 +135,28 @@ public class Company extends BaseEntity {
     }
 
     // checkRole
-    private void checkAuthority(RoleCheck roleCheck) {
-        if (roleCheck.hasRole("MASTER")) { // MASTER 관리자는 권한 체크 필요 없음
+    private void checkAuthority(RoleCheck roleCheck, UUID hubId) {
+        if (roleCheck.hasRole("MASTER")) {
             return;
         }
 
-        if (!(roleCheck.hasRole("HUB_MANAGER") && roleCheck.isMyHub(this.associate.getHub().getId()))) {
-            throw new RuntimeException("처리할 권한이 없습니다.");
+        if (roleCheck.hasRole("HUB_MANAGER") && roleCheck.isMyHub(hubId)) {
+            return;
         }
+
+        throw new IllegalArgumentException("해당 허브에 업체를 생성/수정할 권한이 없습니다.");
     }
 
     // 허브나 업체 매니저가 변경되는 경우
     public void changeAffiliation(
-            UUID newHubId,
+            UUID hubId,
             UUID newCompanyManagerId,
             HubProvider hubProvider,
             CompanyManagerProvider companyManagerProvider,
             RoleCheck roleCheck
     ) {
-        checkAuthority(roleCheck);
-        this.associate = new Associate(newHubId, newCompanyManagerId, hubProvider, companyManagerProvider);
+        checkAuthority(roleCheck, hubId);
+        this.associate = new Associate(hubId, newCompanyManagerId, hubProvider, companyManagerProvider);
     }
 
 }

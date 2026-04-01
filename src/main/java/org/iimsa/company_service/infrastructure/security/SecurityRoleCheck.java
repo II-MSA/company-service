@@ -8,6 +8,7 @@ import java.util.UUID;
 
 @Component
 public class SecurityRoleCheck implements RoleCheck {
+
     @Override
     public boolean hasRole(String role) {
         return false;
