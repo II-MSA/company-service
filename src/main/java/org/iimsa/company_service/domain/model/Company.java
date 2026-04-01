@@ -74,6 +74,21 @@ public class Company extends BaseEntity {
         this.companyManagerName = newManagerName;
     }
 
+    // patch
+    public void updateCompanyInfo(
+            String companyName,
+            CompanyType companyType,
+            String address,
+            Double latitude,
+            Double longitude
+    ) {
+        if (companyName != null) this.companyName = companyName;
+        if (companyType != null) this.companyType = companyType;
+        if (address != null) this.address = address;
+        if (latitude != null) this.latitude = latitude;
+        if (longitude != null) this.longitude = longitude;
+    }
+
     // softDelete
     public void softDelete(String userName) {
         this.deletedAt = LocalDateTime.now();
