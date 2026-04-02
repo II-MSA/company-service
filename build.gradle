@@ -40,6 +40,7 @@ dependencies {
     implementation 'com.iimsa:common:1.0-SNAPSHOT'
 
     // 하단에 개별 서비스에 맞는 의존성 추가
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
 
     // Querydsl APT
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'

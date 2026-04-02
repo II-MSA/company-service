@@ -16,9 +16,9 @@ public record CompanyCreatedPayload(
                 company.getId(),
                 company.getCompanyName(),
                 company.getCompanyType().name(),
-                company.getHubId(),
+                company.getAssociate().getHub().getId(),
                 company.getAddress(),
-                company.getCompanyManagerId()
+                company.getAssociate().getCompanyManager().getCompanyManagerId()
         );
     }
 }

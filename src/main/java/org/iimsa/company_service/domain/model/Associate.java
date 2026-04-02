@@ -37,10 +37,5 @@ public class Associate {
             this.companyManager = new CompanyManager(companyManagerId, companyManagerProvider);
         }
 
-
-
-
-
-
     }
 }
