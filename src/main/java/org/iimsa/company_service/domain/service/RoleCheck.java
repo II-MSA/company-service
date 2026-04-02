@@ -1,10 +1,9 @@
 package org.iimsa.company_service.domain.service;
 
 import java.util.List;
-import java.util.UUID;
+import org.iimsa.company_service.domain.model.UserType;
 
 public interface RoleCheck {
-    boolean hasRole(String role);
-    boolean hasRole(List<String> roles);
-    boolean isMyHub(UUID hubId);
+    boolean hasRole(UserType type);
+    boolean hasRole(List<UserType> types);
 }

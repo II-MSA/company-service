@@ -17,9 +17,9 @@ public record CompanyUpdatedPayload(
                 company.getId(),
                 company.getCompanyName(),
                 company.getCompanyType().name(),
-                company.getHubId(),
+                company.getAssociate().getHub().getId(),
                 company.getAddress(),
-                company.getCompanyManager() != null ? company.getCompanyManager().getId() : null
+                company.getAssociate().getCompanyManager().getCompanyManagerId()
         );
     }
 }

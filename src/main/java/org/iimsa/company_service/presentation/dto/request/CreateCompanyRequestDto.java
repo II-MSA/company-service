@@ -1,22 +1,35 @@
 package org.iimsa.company_service.presentation.dto.request;
 
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.iimsa.company_service.application.dto.CompanyServiceDto;
 import org.iimsa.company_service.domain.model.CompanyType;
+import org.iimsa.company_service.domain.model.UserType;
 
-@Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class CreateCompanyRequestDto {
 
-    private String companyName;
-    private CompanyType companyType;
-    private String address;
-    private Double latitude;
-    private Double longitude;
+    public static class Create {
+        private String companyName;
+        private CompanyType companyType;
+        private UUID hubId;
+        private UUID companyManagerId;
+        private UserType userType;
+        private String address;
+        private Double latitude;
+        private Double longitude;
 
-    private UUID hubId;
-    private UUID companyManagerId;
+        public CompanyServiceDto.Create toDto() {
+            return CompanyServiceDto.Create.builder()
+                    .name(companyName)
+                    .companyType(companyType)
+                    .hubId(hubId)
+                    .companyManagerId(companyManagerId)
+                    .userType(userType)
+                    .address(address)
+                    .latitude(latitude)
+                    .longitude(longitude)
+                    .build();
+        }
+    }
 }
