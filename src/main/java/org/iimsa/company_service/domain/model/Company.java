@@ -49,6 +49,16 @@ public class Company extends BaseEntity {
             UUID hubId, HubProvider hubProvider,
             UUID companyManagerId, CompanyManagerProvider companyManagerProvider) {
 
+        if (!StringUtils.hasText(companyName)) {
+            throw new BadRequestException("업체명은 필수입력 값 입니다.");
+        }
+        if (companyType == null) {
+            throw new BadRequestException("업체 타입은 필수입력 값 입니다.");
+        }
+        if (!StringUtils.hasText(address)) {
+            throw new BadRequestException("주소는 필수입력 값 입니다.");
+        }
+
         this.companyName = companyName;
         this.companyType = companyType;
         this.address = address;
@@ -68,7 +78,13 @@ public class Company extends BaseEntity {
     }
 
     public void changeCompanyType(CompanyType companyType, RoleCheck roleCheck) {
+
         checkMaster(roleCheck);
+
+        if (companyType == null) {
+            throw new BadRequestException("업체 타입은 필수입력 값 입니다.");
+        }
+
         this.companyType = companyType;
     }
 

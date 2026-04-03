@@ -25,11 +25,15 @@ public class CompanyManagerUpdateListener {
     public void onUpdated(Message<String> message, Acknowledgment ack) {
         try {
             CompanyManager companyManager = JsonUtil.fromJson(message.getPayload(), CompanyManager.class);
-            if (companyManager != null) {
-                companyMasterService.syncCompanyManagerInfo(companyManager);
-                log.info("업체 관리자 업데이트 처리 완료: hubId={}", companyManager.getCompanyManagerId());
+
+            if (companyManager == null) {
+                throw new IllegalArgumentException("Invalid companyManager update event payload");
             }
+
+            companyMasterService.syncCompanyManagerInfo(companyManager);
+            log.info("업체 관리자 업데이트 처리 완료: companyManagerId={}", companyManager.getCompanyManagerId());
             ack.acknowledge();
+
         } catch (Exception e) {
             log.error("업체 관리자 업데이트 처리 실패:{}", e.getMessage(), e);
             throw e;
@@ -38,12 +42,13 @@ public class CompanyManagerUpdateListener {
 
     @KafkaListener(topics = "${topics.companyManager.updated}.DLT", groupId = "company-group")
     public void handleDLT(Message<String> message, Acknowledgment ack) {
-        log.error("DLT 수신: {}", message.getPayload());
+        log.error("DLT 수신 시작 (처리에 실패한 메시지가 DLT로 인입되었습니다)");
+
         try {
             CompanyManager companyManager = JsonUtil.fromJson(message.getPayload(), CompanyManager.class);
-            log.error("업체 관리자 업데이트 최종 실패: hubId={}", companyManager.getCompanyManagerId());
+            log.error("업체 관리자 업데이트 최종 실패: companyManagerId={}", companyManager.getCompanyManagerId());
         } catch (Exception e) {
-            log.error("DLT 메시지 변환 실패: {}", message.getPayload());
+            log.error("DLT 메시지 변환 실패: {}", e.getMessage());
         } finally {
             ack.acknowledge();
         }

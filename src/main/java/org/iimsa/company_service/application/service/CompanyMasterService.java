@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iimsa.common.exception.UnAuthorizedException;
 import org.iimsa.common.util.SecurityUtil;
 import org.iimsa.company_service.application.dto.CompanyServiceDto;
+import org.iimsa.company_service.domain.exception.CompanyNotFoundException;
 import org.iimsa.company_service.domain.model.Company;
 import org.iimsa.company_service.domain.model.CompanyManager;
 import org.iimsa.company_service.domain.model.CompanyType;
@@ -56,7 +57,7 @@ public class CompanyMasterService {
 
     private Company getCompany(UUID companyId) {
         return companyRepository.findById(companyId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 업체를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CompanyNotFoundException(companyId));
     }
 
     @Transactional

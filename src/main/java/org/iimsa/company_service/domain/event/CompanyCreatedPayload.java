@@ -1,7 +1,9 @@
 package org.iimsa.company_service.domain.event;
 
-import java.util.UUID;
+import org.iimsa.company_service.domain.model.Associate;
 import org.iimsa.company_service.domain.model.Company;
+
+import java.util.UUID;
 
 public record CompanyCreatedPayload(
         UUID companyId,
@@ -12,13 +14,19 @@ public record CompanyCreatedPayload(
         UUID companyManagerId
 ) {
     public static CompanyCreatedPayload from(Company company) {
+        Associate associate = company.getAssociate();
+
+        if (associate == null || associate.getHub() == null || associate.getCompanyManager() == null) {
+            throw new IllegalStateException("Company associate information is incomplete");
+        }
+
         return new CompanyCreatedPayload(
                 company.getId(),
                 company.getCompanyName(),
                 company.getCompanyType().name(),
-                company.getAssociate().getHub().getId(),
+                associate.getHub().getId(),
                 company.getAddress(),
-                company.getAssociate().getCompanyManager().getCompanyManagerId()
+                associate.getCompanyManager().getCompanyManagerId()
         );
     }
 }
