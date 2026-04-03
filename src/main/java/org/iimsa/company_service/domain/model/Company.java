@@ -1,20 +1,7 @@
 package org.iimsa.company_service.domain.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import java.util.UUID;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import org.iimsa.common.domain.BaseEntity;
 import org.iimsa.common.exception.BadRequestException;
 import org.iimsa.common.exception.ForbiddenException;
@@ -23,7 +10,9 @@ import org.iimsa.company_service.domain.service.HubProvider;
 import org.iimsa.company_service.domain.service.RoleCheck;
 import org.springframework.util.StringUtils;
 
-import static org.iimsa.company_service.domain.model.UserType.*;
+import java.util.UUID;
+
+import static org.iimsa.company_service.domain.model.UserType.MASTER;
 
 @Entity
 @Table(name = "p_company")
@@ -68,7 +57,35 @@ public class Company extends BaseEntity {
         this.latitude = latitude;
         this.longitude = longitude;
 
-        this.associate = new Associate(type, hubId, companyManagerId, hubProvider, companyManagerProvider);
+        this.associate = new Associate(hubId, companyManagerId, hubProvider, companyManagerProvider);
+    }
+
+    // update
+    public void changeAssociate(UUID hubId, UUID companyManagerId,
+                                RoleCheck roleCheck, HubProvider hubInfo, CompanyManagerProvider companyManagerInfo) {
+
+        checkMaster(roleCheck);
+        this.associate = new Associate(hubId, companyManagerId, hubInfo, companyManagerInfo);
+
+    }
+
+    public void changeCompanyType(CompanyType companyType, RoleCheck roleCheck) {
+        checkMaster(roleCheck);
+        this.companyType = companyType;
+    }
+
+    public void changeAddress(String address, Double latitude, Double longitude, RoleCheck roleCheck) {
+        checkMaster(roleCheck);
+        this.address = address;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    // User 코드처럼 권한 체크 메서드 유지
+    private void checkMasterId(String masterId) {
+        if (!StringUtils.hasText(masterId)) {
+            throw new BadRequestException("관리자 아이디가 누락되었습니다.");
+        }
     }
 
     // softDelete
