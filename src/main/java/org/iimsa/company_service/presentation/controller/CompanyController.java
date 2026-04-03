@@ -104,7 +104,7 @@ public class CompanyController {
     public void changeAddress(
             @PathVariable UUID companyId, @RequestBody PatchCompanyRequestDto.ChangeCompanyAddress request) {
 
-        companyMasterService.changeAddress(companyId, request.getAddress(), request.getLatitude(), request.getLongitude());
+        companyMasterService.changeAddress(companyId, request.getAddress());
     }
 
     // Delete

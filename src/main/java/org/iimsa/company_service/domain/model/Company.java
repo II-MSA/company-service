@@ -5,9 +5,7 @@ import lombok.*;
 import org.iimsa.common.domain.BaseEntity;
 import org.iimsa.common.exception.BadRequestException;
 import org.iimsa.common.exception.ForbiddenException;
-import org.iimsa.company_service.domain.service.CompanyManagerProvider;
-import org.iimsa.company_service.domain.service.HubProvider;
-import org.iimsa.company_service.domain.service.RoleCheck;
+import org.iimsa.company_service.domain.service.*;
 import org.springframework.util.StringUtils;
 
 import java.util.UUID;
@@ -35,7 +33,7 @@ public class Company extends BaseEntity {
     @Embedded
     private Associate associate;
 
-    @Column(name = "address", columnDefinition = "TEXT")
+    @Column(name = "address", columnDefinition = "TEXT", nullable = false)
     private String address;
 
     @Column(name = "latitude")
@@ -49,7 +47,7 @@ public class Company extends BaseEntity {
             String companyName, CompanyType companyType,
             String address, Double latitude, Double longitude,
             UUID hubId, HubProvider hubProvider,
-            UUID companyManagerId, UserType type, CompanyManagerProvider companyManagerProvider) {
+            UUID companyManagerId, CompanyManagerProvider companyManagerProvider) {
 
         this.companyName = companyName;
         this.companyType = companyType;
@@ -74,11 +72,22 @@ public class Company extends BaseEntity {
         this.companyType = companyType;
     }
 
-    public void changeAddress(String address, Double latitude, Double longitude, RoleCheck roleCheck) {
+    public void changeAddress(String address, AddressResolver resolver, RoleCheck roleCheck) {
+
         checkMaster(roleCheck);
+
+        if (!StringUtils.hasText(address)) {
+            throw new BadRequestException("주소는 필수입력 값 입니다.");
+        }
+
+        Coordinates coordinates = resolver.resolve(address);
+        if (coordinates == null) {
+            throw new BadRequestException("유효하지 않은 주소입니다: " + address);
+        }
+
         this.address = address;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.latitude = coordinates.latitude(); // 위도
+        this.longitude = coordinates.longitude(); // 경도
     }
 
     // User 코드처럼 권한 체크 메서드 유지

@@ -12,6 +12,7 @@ import org.iimsa.company_service.domain.model.CompanyType;
 import org.iimsa.company_service.domain.model.Hub;
 import org.iimsa.company_service.domain.repository.CompanyBulkRepository;
 import org.iimsa.company_service.domain.repository.CompanyRepository;
+import org.iimsa.company_service.domain.service.AddressResolver;
 import org.iimsa.company_service.domain.service.CompanyManagerProvider;
 import org.iimsa.company_service.domain.service.HubProvider;
 import org.iimsa.company_service.domain.service.RoleCheck;
@@ -31,6 +32,7 @@ public class CompanyMasterService {
     private final CompanyManagerProvider companyManagerProvider;
     private final CompanyRepository companyRepository;
     private final CompanyBulkRepository companyBulkRepository;
+    private final AddressResolver addressResolver;
     private final RoleCheck roleCheck;
     private final EntityManager em;
 
@@ -46,7 +48,6 @@ public class CompanyMasterService {
                 .hubId(data.getHubId())
                 .hubProvider(hubProvider)
                 .companyManagerId(data.getCompanyManagerId())
-                .type(data.getUserType())
                 .companyManagerProvider(companyManagerProvider)
                 .build();
 
@@ -73,10 +74,9 @@ public class CompanyMasterService {
     }
 
     @Transactional
-    public void changeAddress(UUID companyId, String address, Double latitude,
-                              Double longitude) {
+    public void changeAddress(UUID companyId, String address) {
         Company company = getCompany(companyId);
-        company.changeAddress(address, latitude, longitude, roleCheck);
+        company.changeAddress(address, addressResolver, roleCheck);
     }
 
     @Transactional
