@@ -3,8 +3,8 @@ package org.iimsa.company_service.presentation.dto.request;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.iimsa.company_service.domain.model.CompanyId;
 import org.iimsa.company_service.domain.query.CompanyQueryDto;
-import org.iimsa.company_service.domain.repository.CompanyId;
 
 import java.util.List;
 import java.util.UUID;

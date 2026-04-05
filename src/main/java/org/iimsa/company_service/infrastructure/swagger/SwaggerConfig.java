@@ -29,7 +29,7 @@ public class SwaggerConfig {
                 .components(new Components().addSecuritySchemes("Bearer", new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer"))
                 .info(new Info().title("스파르타 허브")
-                        .description("User API"));
+                        .description("Company API"));
     }
 
     @Bean

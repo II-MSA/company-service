@@ -2,8 +2,8 @@ package org.iimsa.company_service.application.query;
 
 import lombok.RequiredArgsConstructor;
 import org.iimsa.company_service.domain.exception.CompanyNotFoundException;
+import org.iimsa.company_service.domain.model.CompanyId;
 import org.iimsa.company_service.domain.query.CompanyQueryDto;
-import org.iimsa.company_service.domain.repository.CompanyId;
 import org.iimsa.company_service.domain.repository.CompanyQueryRepository;
 import org.iimsa.company_service.presentation.dto.response.GetCompanyResponseDto;
 import org.springframework.data.domain.Page;

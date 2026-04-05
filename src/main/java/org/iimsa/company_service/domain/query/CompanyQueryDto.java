@@ -1,12 +1,13 @@
 package org.iimsa.company_service.domain.query;
 
-import java.util.List;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.iimsa.company_service.domain.repository.CompanyId;
+import org.iimsa.company_service.domain.model.CompanyId;
+
+import java.util.List;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CompanyQueryDto {

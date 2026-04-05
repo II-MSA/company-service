@@ -5,8 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.iimsa.company_service.domain.service.CompanyManagerData;
 import org.iimsa.company_service.domain.service.CompanyManagerProvider;
+import org.iimsa.company_service.domain.service.dto.CompanyManagerResponse;
 import org.iimsa.company_service.infrastructure.client.CompanyManagerClient;
-import org.iimsa.company_service.infrastructure.client.dto.CompanyManagerResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;

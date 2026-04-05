@@ -1,16 +1,17 @@
-package org.iimsa.company_service.domain.repository;
+package org.iimsa.company_service.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import java.io.Serializable;
-import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
+import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
 public record CompanyId(
         @JdbcTypeCode(SqlTypes.UUID)
-        @Column(length=36, name="company_id")
+        @Column(length = 36, name = "company_id")
         UUID id
 ) implements Serializable {
     public static CompanyId of(UUID id) {

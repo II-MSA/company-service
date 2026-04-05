@@ -3,8 +3,8 @@ package org.iimsa.company_service.infrastructure.provider;
 import lombok.RequiredArgsConstructor;
 import org.iimsa.company_service.domain.service.HubData;
 import org.iimsa.company_service.domain.service.HubProvider;
+import org.iimsa.company_service.domain.service.dto.HubResponse;
 import org.iimsa.company_service.infrastructure.client.HubClient;
-import org.iimsa.company_service.infrastructure.client.dto.HubResponse;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
