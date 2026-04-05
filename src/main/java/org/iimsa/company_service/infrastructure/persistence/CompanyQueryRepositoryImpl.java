@@ -95,18 +95,28 @@ public class CompanyQueryRepositoryImpl implements CompanyQueryRepository {
             return orders;
         }
 
+        PathBuilder<Company> entityPath = new PathBuilder<>(Company.class, "company");
+
         // 2. 클라이언트가 정렬 조건을 보냈을 때 (동적 정렬 적용)
         for (Sort.Order order : pageable.getSort()) {
             Order direction = order.getDirection().isAscending() ? Order.ASC : Order.DESC;
-            PathBuilder<Company> entityPath = new PathBuilder<>(Company.class, "company");
+            String property = order.getProperty();
 
-            // 경고를 방지하기 위해 unchecked type cast 처리
-            @SuppressWarnings({"unchecked", "rawtypes"})
-            OrderSpecifier<?> orderSpecifier = new OrderSpecifier(direction, entityPath.get(order.getProperty()));
-
-            orders.add(orderSpecifier);
+            OrderSpecifier<?> orderSpecifier = switch (property) {
+                case "createdAt", "modifiedAt", "companyName" ->
+                        new OrderSpecifier<>(direction, entityPath.getComparable(property, Comparable.class));
+                default -> null;
+            };
+            if (orderSpecifier != null) {
+                orders.add(orderSpecifier);
+            }
         }
 
+        if (orders.isEmpty()) {
+            orders.add(company.createdAt.desc());
+            orders.add(company.modifiedAt.desc());
+        }
+        
         return orders;
     }
 
