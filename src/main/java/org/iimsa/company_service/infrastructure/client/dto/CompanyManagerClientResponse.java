@@ -3,7 +3,7 @@ package org.iimsa.company_service.infrastructure.client.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record CompanyClientResponse(
+public record CompanyManagerClientResponse(
         boolean success,
         String message,
         UserInfo data,
