@@ -1,6 +1,8 @@
 package org.iimsa.company_service.infrastructure.provider;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.iimsa.company_service.domain.service.HubData;
 import org.iimsa.company_service.domain.service.HubProvider;
 import org.iimsa.company_service.domain.service.dto.HubResponse;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class HubProviderImpl implements HubProvider {
@@ -21,12 +24,22 @@ public class HubProviderImpl implements HubProvider {
             throw new IllegalArgumentException("hubId must not be null");
         }
 
-        HubResponse res = client.getHub(hubId);
+        try {
+            HubResponse res = client.getHub(hubId);
 
-        if (res == null || res.id() == null) {
-            throw new IllegalStateException("Hub not found: " + hubId);
+            if (res == null || res.id() == null) {
+                return null;
+            }
+
+            return new HubData(res.name(), res.address());
+
+        } catch (FeignException.NotFound e) {
+            log.warn("Hub를 찾을 수 없습니다. hubId={}", hubId);
+            return null;
+
+        } catch (FeignException e) {
+            log.error("Hub 서비스 호출 실패: hubId={}, Error={}", hubId, e.getMessage());
+            throw new RuntimeException("허브 정보 조회 중 외부 서비스 호출에 실패했습니다.", e);
         }
-
-        return new HubData(res.name(), res.address());
     }
 }

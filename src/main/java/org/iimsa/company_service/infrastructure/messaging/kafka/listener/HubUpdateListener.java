@@ -38,14 +38,8 @@ public class HubUpdateListener {
 
     @KafkaListener(topics = "${topics.hub.updated}.DLT", groupId = "user-group")
     public void handleDLT(Message<String> message, Acknowledgment ack) {
-        log.error("DLT 수신: {}", message.getPayload());
-        try {
-            Hub hub = JsonUtil.fromJson(message.getPayload(), Hub.class);
-            log.error("허브 업데이트 최종 실패: hubId={}", hub.getId());
-        } catch (Exception e) {
-            log.error("DLT 메시지 변환 실패: {}", message.getPayload());
-        } finally {
-            ack.acknowledge();
-        }
+        log.error("DLT 수신 (허브 업데이트 최종 실패)");
+        log.error("원본 메시지 Payload: {}", message.getPayload());
+        ack.acknowledge();
     }
 }

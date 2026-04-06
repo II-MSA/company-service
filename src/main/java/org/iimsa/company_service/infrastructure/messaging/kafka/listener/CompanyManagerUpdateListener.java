@@ -42,15 +42,8 @@ public class CompanyManagerUpdateListener {
 
     @KafkaListener(topics = "${topics.companyManager.updated}.DLT", groupId = "company-group")
     public void handleDLT(Message<String> message, Acknowledgment ack) {
-        log.error("DLT 수신 시작 (처리에 실패한 메시지가 DLT로 인입되었습니다)");
-
-        try {
-            CompanyManager companyManager = JsonUtil.fromJson(message.getPayload(), CompanyManager.class);
-            log.error("업체 관리자 업데이트 최종 실패: companyManagerId={}", companyManager.getCompanyManagerId());
-        } catch (Exception e) {
-            log.error("DLT 메시지 변환 실패: {}", e.getMessage());
-        } finally {
-            ack.acknowledge();
-        }
+        log.error("DLT 수신 (업체 관리자 업데이트 최종 실패)");
+        log.error("원본 메시지 Payload: {}", message.getPayload());
+        ack.acknowledge();
     }
 }

@@ -18,6 +18,11 @@ public class CompanyEventsImpl implements CompanyEvents {
     private final CompanyTopicProperties properties;
 
     @Override
+    public void created(Company company) {
+        Events.trigger(UUID.randomUUID().toString(), "COMPANY", "CREATED", properties.create(), company);
+    }
+
+    @Override
     public void updated(Company company) {
         Events.trigger(UUID.randomUUID().toString(), "COMPANY", "UPDATED", properties.update(), company);
     }

@@ -20,7 +20,7 @@ import java.util.Map;
 @Configuration
 public class SwaggerConfig {
 
-    private final String PREFIX = "/v1/users";
+    private final String PREFIX = "/v1/companies";
 
     @Bean
     public OpenAPI openAPI(@Value("${openapi.service.url}") String url) {
@@ -48,7 +48,6 @@ public class SwaggerConfig {
                 }
             }
 
-            // 실제 엔드포인트는 제거하고 게이트웨이를 통한 엔드포인트만 노출
             original.keySet().forEach(s -> {
                 if (!s.startsWith(PREFIX)) paths.remove(s);
             });

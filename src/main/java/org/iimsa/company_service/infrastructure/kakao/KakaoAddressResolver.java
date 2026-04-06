@@ -48,7 +48,6 @@ public class KakaoAddressResolver implements AddressResolver {
                             .build())
                     .header("Authorization", "KakaoAK " + apiKey)
                     .retrieve()
-                    // 4xx, 5xx 에러 발생 시 자동으로 예외를 던지도록 설정 가능
                     .onStatus(HttpStatusCode::isError, (request, response) -> {
                         log.error("Kakao API Error: {}", response.getStatusCode());
                         throw new InternalServerException("외부 API 호출 실패");
@@ -66,6 +65,8 @@ public class KakaoAddressResolver implements AddressResolver {
                     return new Coordinates(lat, lon);
                 }
             }
+        } catch (InternalServerException e) {
+            throw e;
         } catch (Exception e) {
             log.error("주소 변환 중 예외 발생: Error: {}", e.getMessage(), e);
         }

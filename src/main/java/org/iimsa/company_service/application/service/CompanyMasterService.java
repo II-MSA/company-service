@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.iimsa.common.exception.UnAuthorizedException;
 import org.iimsa.common.util.SecurityUtil;
 import org.iimsa.company_service.application.dto.CompanyServiceDto;
+import org.iimsa.company_service.domain.event.CompanyEvents;
 import org.iimsa.company_service.domain.exception.CompanyNotFoundException;
 import org.iimsa.company_service.domain.model.Company;
 import org.iimsa.company_service.domain.model.CompanyManager;
@@ -36,6 +37,7 @@ public class CompanyMasterService {
     private final AddressResolver addressResolver;
     private final RoleCheck roleCheck;
     private final EntityManager em;
+    private final CompanyEvents companyEvents;
 
     @Transactional
     public UUID createCompany(CompanyServiceDto.Create data) {
@@ -52,7 +54,11 @@ public class CompanyMasterService {
                 .companyManagerProvider(companyManagerProvider)
                 .build();
 
-        return companyRepository.save(company).getId();
+        Company savedCompany = companyRepository.save(company);
+
+        companyEvents.created(savedCompany);
+
+        return savedCompany.getId();
     }
 
     private Company getCompany(UUID companyId) {
@@ -62,28 +68,35 @@ public class CompanyMasterService {
 
     @Transactional
     public void changeAssociate(UUID companyId, UUID hubId, UUID companyManagerId) {
-
         Company company = getCompany(companyId);
         company.changeAssociate(hubId, companyManagerId,
                 roleCheck, hubProvider, companyManagerProvider);
+
+        companyEvents.updated(company);
     }
 
     @Transactional
     public void changeCompanyType(UUID companyId, CompanyType companyType) {
         Company company = getCompany(companyId);
         company.changeCompanyType(companyType, roleCheck);
+
+        companyEvents.updated(company);
     }
 
     @Transactional
     public void changeAddress(UUID companyId, String address) {
         Company company = getCompany(companyId);
         company.changeAddress(address, addressResolver, roleCheck);
+
+        companyEvents.updated(company);
     }
 
     @Transactional
     public void deleteCompany(UUID companyId) {
         Company company = getCompany(companyId);
         company.delete(getMasterId(), roleCheck);
+
+        companyEvents.deleted(company);
     }
 
     private String getMasterId() {
@@ -106,6 +119,5 @@ public class CompanyMasterService {
 
         log.info("[BulkUpdate] CompanyManager ID: {} - {} companies updated", companyManager.getCompanyManagerId(), updatedCount);
     }
-
 
 }
